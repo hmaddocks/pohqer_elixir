@@ -2,7 +2,7 @@ defmodule PohqerElixirWeb.GameController do
   use PohqerElixirWeb, :controller
 
   alias PohqerElixir.Games
-  alias PohqerElixir.Games.{Game, Round, Vote}
+  alias PohqerElixir.Games.{Round, Vote}
 
   def new(conn, _params) do
     render(conn, :new)

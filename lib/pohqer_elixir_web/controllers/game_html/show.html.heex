@@ -1,0 +1,149 @@
+<div class="mx-auto max-w-4xl px-4 py-10">
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">
+        <%= if @game.title, do: @game.title, else: "Planning Poker Game" %>
+      </h1>
+      <div class="text-sm text-gray-500">
+        Created by <%= @game.owner_name %>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <h2 class="text-lg font-semibold text-gray-700 mb-4">Share Game</h2>
+      <div class="flex items-center space-x-4">
+        <input
+          type="text"
+          value={url(~p"/games/#{@game.id}")}
+          readonly
+          class="block w-full rounded-md border-gray-300 bg-gray-50 text-sm"
+        />
+        <button
+          type="button"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          onclick="navigator.clipboard.writeText(window.location.href)"
+        >
+          Copy Link
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <%= if @current_round do %>
+        <h2 class="text-xl font-bold mb-4">Current Round: <%= @current_round.title %></h2>
+        
+        <%= if @current_round.status == "active" do %>
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-2">Cast Your Vote</h3>
+            <div class="grid grid-cols-4 gap-4 md:grid-cols-7">
+              <%= for value <- [1, 2, 3, 5, 8, 13, 21] do %>
+                <form action={~p"/games/#{@game.id}/rounds/#{@current_round.id}/vote"} method="post" class="inline">
+                  <input type="hidden" name="player_name" value="Player 1">
+                  <input type="hidden" name="value" value={value}>
+                  <button type="submit" class="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                    <%= value %>
+                  </button>
+                </form>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <.form :let={f} for={%{}} action={~p"/games/#{@game.id}/rounds/#{@current_round.id}/finish"} method="post">
+              <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">
+                Finish Round
+              </button>
+            </.form>
+          </div>
+        <% else %>
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-2">Round Results</h3>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+              <%= for vote <- @votes do %>
+                <div class="p-4 bg-gray-100 rounded">
+                  <p class="font-semibold"><%= vote.player_name %></p>
+                  <p class="text-2xl"><%= vote.value %></p>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <.form :let={f} for={%{}} action={~p"/games/#{@game.id}/rounds"} method="post">
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <input type="text" name="round[title]" placeholder="Round Title" class="w-full px-3 py-2 border rounded">
+                </div>
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                  Start New Round
+                </button>
+              </div>
+            </.form>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="mb-6">
+          <.form :let={f} for={%{}} action={~p"/games/#{@game.id}/rounds"} method="post">
+            <div class="flex gap-4">
+              <div class="flex-1">
+                <input type="text" name="round[title]" placeholder="Round Title" class="w-full px-3 py-2 border rounded">
+              </div>
+              <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                Start New Round
+              </button>
+            </div>
+          </.form>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="mt-8 border-t pt-6">
+      <h2 class="text-lg font-semibold text-gray-700 mb-4">
+        <%= if @current_round do %>
+          Current Round
+        <% else %>
+          Start New Round
+        <% end %>
+      </h2>
+
+      <%= if @current_round do %>
+        <div class="flex justify-end">
+          <.form :let={f} for={%{}} action={~p"/games/#{@game.id}/rounds/#{@current_round.id}/finish"} class="w-full">
+            <button
+              type="submit"
+              class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Finish Round
+            </button>
+          </.form>
+        </div>
+      <% else %>
+        <.form :let={f} for={%{}} action={~p"/games/#{@game.id}/rounds"} class="space-y-4">
+          <div>
+            <label for="round_title" class="block text-sm font-medium text-gray-700">
+              Round Title (Optional)
+            </label>
+            <div class="mt-1">
+              <input
+                type="text"
+                name="round[title]"
+                id="round_title"
+                placeholder="e.g., User Authentication Story"
+                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Start New Round
+            </button>
+          </div>
+        </.form>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -20,6 +20,10 @@ defmodule PohqerElixirWeb.Router do
     get "/", PageController, :home
     get "/games/new", GameController, :new
     post "/games", GameController, :create
+    get "/games/:id", GameController, :show
+    post "/games/:game_id/rounds", GameController, :create_round
+    post "/games/:game_id/rounds/:id/finish", GameController, :finish_round
+    post "/games/:game_id/rounds/:id/vote", GameController, :cast_vote
   end
 
   # Other scopes may use custom stacks.

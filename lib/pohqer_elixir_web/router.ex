@@ -18,6 +18,8 @@ defmodule PohqerElixirWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/games/new", GameController, :new
+    post "/games", GameController, :create
   end
 
   # Other scopes may use custom stacks.
